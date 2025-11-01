@@ -5,7 +5,6 @@ import {uploadOnCloudinary} from "../utils/cloudinary.js"
 import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken";
 import { response } from "express";
-import { use } from "react";
 import mongoose from "mongoose";
 
 
@@ -162,7 +161,7 @@ const logoutUser = asyncHandler(async(req, res) => {
         req.user._id,
         {
             $set: {
-                refreshToken: undefined
+                refreshToken: 1 // this removes the fields from document
             }
         },
         {
@@ -285,7 +284,7 @@ const updateUserAvatar = asyncHandler (async (req, res) => {
 
 
     if(!avatarLocalPath){
-        new ApiError(400, "Avatar file is missing")
+       throw new ApiError(400, "Avatar file is missing")
     }
 
     const avatar = await uploadOnCloudinary(avatarLocalPath)
@@ -315,13 +314,13 @@ const updateUserCoverImage = asyncHandler (async (req, res) => {
 
 
     if(!coverImageLocalPath){
-        new ApiError(400, "Cover Image file is missing")
+        throw new ApiError(400, "Cover Image file is missing")
     }
 
     const coverImage = await uploadOnCloudinary(coverImageLocalPath)
 
     if (!coverImage.url) {
-        new ApiError(400, "Error while uploading on cover image")
+        throw new ApiError(400, "Error while uploading on cover image")
     }
 
     const user = await User.findByIdAndUpdate(
